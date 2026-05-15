@@ -1,0 +1,553 @@
+<app-loading-overlay
+  [visible]="isLoading"
+  [message]="lastOperation">
+</app-loading-overlay>
+
+<app-toast-notification
+  [visible]="toastVisible"
+  [message]="toastMessage"
+  [type]="toastType">
+</app-toast-notification>
+
+<div class="dashboard-container">
+
+  <!-- ======================================
+       HERO
+  ======================================= -->
+
+  <section class="hero-section">
+
+    <div class="hero-content">
+
+      <div class="hero-badge">
+        ERP Integration Platform
+      </div>
+
+      <h1>
+        Acumatica ERP Dashboard
+      </h1>
+
+      <p>
+        Plataforma empresarial para monitoreo,
+        sincronización y administración
+        de órdenes de venta conectadas
+        en tiempo real con Acumatica ERP.
+      </p>
+
+      <div class="hero-actions">
+
+        <button
+          class="primary-btn"
+          (click)="loadOrders()"
+          [disabled]="isLoading">
+
+          {{
+            isLoading
+              ? 'Sincronizando...'
+              : 'Sincronizar Datos'
+          }}
+
+        </button>
+
+        <button
+          class="danger-btn"
+          (click)="logout()">
+
+          Cerrar Sesión
+
+        </button>
+
+      </div>
+
+    </div>
+
+    <div class="status-panel">
+
+      <span class="status-label">
+        ESTADO ERP
+      </span>
+
+      <div class="status-online">
+
+        <div class="status-dot"></div>
+
+        <h3>
+          {{ sessionStatus }}
+        </h3>
+
+      </div>
+
+      <div class="status-info">
+
+        <div>
+
+          <span>
+            Órdenes
+          </span>
+
+          <strong>
+            {{ ordersLoaded }}
+          </strong>
+
+        </div>
+
+        <div>
+
+          <span>
+            Última acción
+          </span>
+
+          <strong>
+            {{ lastOperation }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- ======================================
+       STATS
+  ======================================= -->
+
+  <section
+    class="stats-section"
+    *ngIf="orders.length > 0">
+
+    <div class="stat-card">
+
+      <span>
+        Total Órdenes
+      </span>
+
+      <h2>
+        {{ ordersLoaded }}
+      </h2>
+
+    </div>
+
+    <div class="stat-card">
+
+      <span>
+        Órdenes Abiertas
+      </span>
+
+      <h2>
+        {{ openOrders }}
+      </h2>
+
+    </div>
+
+    <div class="stat-card">
+
+      <span>
+        Órdenes Completadas
+      </span>
+
+      <h2>
+        {{ completedOrders }}
+      </h2>
+
+    </div>
+
+  </section>
+
+  <!-- ======================================
+       TABLE
+  ======================================= -->
+
+  <section class="table-section">
+
+    <div class="table-card">
+
+      <!-- HEADER -->
+
+      <div class="table-header">
+
+        <div>
+
+          <h3>
+            Sales Orders
+          </h3>
+
+          <span>
+            Información sincronizada desde Acumatica ERP
+          </span>
+
+        </div>
+
+        <div class="records-badge">
+
+          {{
+            visibleRows === -1
+              ? filteredOrders.length + ' registros'
+              : visibleRows + ' visibles'
+          }}
+
+        </div>
+
+      </div>
+
+      <!-- TOOLBAR -->
+
+      <div
+        class="table-toolbar"
+        *ngIf="orders.length > 0">
+
+        <!-- SEARCH -->
+
+        <div class="search-box">
+
+          <input
+            type="text"
+            placeholder="Buscar orden, cliente, descripción o estado..."
+            [(ngModel)]="searchTerm"
+            (input)="applyFilters()">
+
+        </div>
+
+        <!-- ACTIONS -->
+
+        <div class="toolbar-actions">
+
+          <!-- STATUS FILTER -->
+
+          <select
+            class="toolbar-select"
+            [(ngModel)]="selectedStatus"
+            (change)="applyFilters()">
+
+            <option value="ALL">
+              Todos los estados
+            </option>
+
+            <option
+              *ngFor="
+                let status
+                of availableStatuses
+              "
+              [value]="status">
+
+              {{ status }}
+
+            </option>
+
+          </select>
+
+          <!-- ROWS FILTER -->
+
+          <select
+            class="toolbar-select"
+            [ngModel]="visibleRows"
+            (ngModelChange)="changeVisibleRows($event)">
+
+            <option [ngValue]="5">
+              Mostrar 5
+            </option>
+
+            <option [ngValue]="10">
+              Mostrar 10
+            </option>
+
+            <option [ngValue]="20">
+              Mostrar 20
+            </option>
+
+            <option [ngValue]="50">
+              Mostrar 50
+            </option>
+
+            <option [ngValue]="-1">
+              Mostrar Todas
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+
+      <!-- TABLE -->
+
+      <div class="table-container">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Orden
+              </th>
+
+              <th>
+                Estado
+              </th>
+
+              <th>
+                Cliente
+              </th>
+
+              <th>
+                Descripción
+              </th>
+
+              <th>
+                Acciones
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            <tr
+              *ngFor="
+                let order
+                of filteredOrders
+              ">
+
+              <!-- ORDER -->
+
+              <td class="order-number">
+
+                {{ order.orderNbr?.value }}
+
+              </td>
+
+              <!-- STATUS -->
+
+              <td>
+
+                <span
+                  class="status-badge"
+                  [class.open]="
+                    order.status?.value === 'Open'
+                  "
+                  [class.completed]="
+                    order.status?.value === 'Completed'
+                  "
+                  [class.hold]="
+                    order.status?.value === 'On Hold'
+                  "
+                  [class.invoiced]="
+                    order.status?.value === 'Invoiced'
+                  ">
+
+                  {{ order.status?.value }}
+
+                </span>
+
+              </td>
+
+              <!-- CUSTOMER -->
+
+              <td>
+
+                {{ order.customerID?.value }}
+
+              </td>
+
+              <!-- DESCRIPTION -->
+
+              <td class="description">
+
+                {{
+                  order.description?.value
+                  || 'Sin descripción'
+                }}
+
+              </td>
+
+              <!-- ACTIONS -->
+
+              <td class="actions-column">
+
+                <div class="table-actions">
+
+                  <button
+                    class="edit-btn"
+                    (click)="openEditor(order)">
+
+                    Editar
+
+                  </button>
+
+                  <button
+                    class="hold-btn"
+                    (click)="removeHold(order)"
+                    [disabled]="
+                      order.status?.value !== 'On Hold'
+                      || removingHold
+                    ">
+
+                    {{
+                      order.status?.value === 'On Hold'
+                        ? (
+                            removingHold
+                              ? 'Procesando...'
+                              : 'Remove Hold'
+                          )
+                        : 'No Hold'
+                    }}
+
+                  </button>
+
+                </div>
+
+              </td>
+
+            </tr>
+
+            <!-- EMPTY -->
+
+            <tr
+              *ngIf="
+                filteredOrders.length === 0
+              ">
+
+              <td
+                colspan="5"
+                class="empty-state">
+
+                <h4>
+                  No hay resultados
+                </h4>
+
+                <p>
+                  Modifica los filtros
+                  o sincroniza nuevamente.
+                </p>
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</div>
+
+<!-- ======================================
+     MODAL
+====================================== -->
+
+<div
+  class="modal-overlay"
+  *ngIf="showEditor">
+
+  <div class="editor-modal">
+
+    <!-- HEADER -->
+
+    <div class="modal-header">
+
+      <div>
+
+        <h2>
+          Editar Orden
+        </h2>
+
+        <span>
+          Actualización directa sobre Acumatica ERP
+        </span>
+
+      </div>
+
+      <button
+        class="close-btn"
+        (click)="closeEditor()">
+
+        ×
+
+      </button>
+
+    </div>
+
+    <!-- BODY -->
+
+    <div class="modal-body">
+
+      <div class="form-group">
+
+        <label>
+          Número de Orden
+        </label>
+
+        <input
+          type="text"
+          [value]="selectedOrder?.orderNbr?.value"
+          disabled>
+
+      </div>
+
+      <div class="form-group">
+
+        <label>
+          Cliente
+        </label>
+
+        <input
+          type="text"
+          [value]="selectedOrder?.customerID?.value"
+          disabled>
+
+      </div>
+
+      <div class="form-group">
+
+        <label>
+          Descripción
+        </label>
+
+        <textarea
+          rows="6"
+          [(ngModel)]="editDescription">
+        </textarea>
+
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="modal-actions">
+
+      <button
+        class="cancel-btn"
+        (click)="closeEditor()">
+
+        Cancelar
+
+      </button>
+
+      <button
+        class="save-btn"
+        (click)="saveOrder()"
+        [disabled]="isSaving">
+
+        {{
+          isSaving
+            ? 'Guardando...'
+            : 'Guardar Cambios'
+        }}
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
