@@ -1,9 +1,6 @@
 # ClandBus ERP Integration Platform
 
-<p align="center">
-  <img src="./public/logo.ico" width="120" alt="ClandBus ERP Logo">
-</p>
-
+<img src="./frontend/clandbus-dashboard/public/logo.ico" width="120" alt="ClandBus ERP Logo">
 <p align="center">
   <strong>Acumatica ERP Integration Dashboard</strong>
 </p>
