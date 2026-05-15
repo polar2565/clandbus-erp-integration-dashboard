@@ -31,7 +31,6 @@
 * Remove Hold
 * Logout ERP
 * Manejo de Errores
-* Manejo de Incidentes
 * Decisiones Técnicas
 * Seguridad
 * Autor
@@ -508,40 +507,6 @@ También se implementaron:
 * Toast notifications
 * Estados de loading
 * Mensajes visuales
-
----
-
-# Manejo de Incidentes
-
-## Respuesta inicial al cliente
-
-La primera respuesta debe enfocarse en:
-
-* Mantener la calma
-* Reconocer la urgencia
-* Evitar culpar
-* Comunicar ownership del problema
-
-Ejemplo:
-
-> “Entiendo la urgencia del problema y voy a revisarlo inmediatamente. Primero validaré el estado de los servicios, la conectividad y la ejecución de los reportes para identificar el origen del timeout.”
-
----
-
-## Diagnóstico técnico
-
-Pasos internos:
-
-1. Revisar disponibilidad API
-2. Revisar logs backend
-3. Validar tiempos ERP
-4. Revisar consultas SQL
-5. Validar índices
-6. Revisar consumo servidor
-7. Revisar cambios recientes
-8. Reproducir problema
-9. Validar timeouts
-10. Revisar conectividad
 
 ---
 
