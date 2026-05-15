@@ -17,7 +17,6 @@
 # Tabla de Contenido
 
 * Descripción General
-* Objetivos de la Prueba
 * Arquitectura del Proyecto
 * Tecnologías Utilizadas
 * Flujo General del Sistema
@@ -63,35 +62,6 @@ Además de cumplir los requerimientos técnicos, el proyecto fue diseñado pensa
 * Experiencia de usuario
 * Documentación técnica
 * Facilidad de mantenimiento
-
----
-
-# Objetivos de la Prueba
-
-## Parte 1 - Integración REST API
-
-Implementar:
-
-* Login ERP
-* Manejo de sesión
-* Consulta de órdenes
-* Actualización de órdenes
-* Remove Hold
-* Logout ERP
-
-## Parte 2 - SQL
-
-Resolver:
-
-* Limpieza histórica de registros
-* Optimización de consultas mediante índices
-
-## Parte 3 - Manejo de Incidentes
-
-Explicar:
-
-* Comunicación profesional con cliente
-* Diagnóstico técnico interno
 
 ---
 
