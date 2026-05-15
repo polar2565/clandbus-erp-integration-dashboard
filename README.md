@@ -32,12 +32,9 @@
 * Remove Hold
 * Logout ERP
 * Manejo de Errores
-* SQL Parte 2
 * Manejo de Incidentes
 * Decisiones Técnicas
 * Seguridad
-* Capturas Recomendadas
-* Video Loom
 * Autor
 
 ---
@@ -544,73 +541,6 @@ También se implementaron:
 
 ---
 
-# SQL Parte 2
-
-La segunda parte de la prueba técnica consistió en optimizar mantenimiento y consultas sobre la tabla LoginTrace.
-
-Contexto:
-
-La tabla almacena auditoría histórica de accesos y operaciones del sistema.
-
-Debido al crecimiento de la información (+5 millones de registros), se planteó:
-
-* Eliminación histórica de registros
-* Optimización de consultas frecuentes
-
----
-
-## Eliminación de registros históricos
-
-```sql
-DELETE FROM LoginTrace
-WHERE [Date] < '2025-01-01';
-```
-
-### Explicación
-
-La instrucción elimina todos los registros correspondientes al año 2024 hacia atrás utilizando el campo [Date].
-
-El objetivo es:
-
-* Reducir tamaño de tabla
-* Mejorar rendimiento
-* Disminuir scans innecesarios
-* Optimizar mantenimiento
-
----
-
-## Optimización de consultas
-
-```sql
-CREATE NONCLUSTERED INDEX IX_LoginTrace_Date_Username
-ON LoginTrace (
-    [Date],
-    [Username]
-);
-```
-
-### Escenario optimizado
-
-```sql
-SELECT *
-FROM LoginTrace
-WHERE [Date] BETWEEN @StartDate AND @EndDate
-AND [Username] = @Username
-```
-
-### Beneficios
-
-El índice compuesto mejora:
-
-* Filtros por rango de fechas
-* Búsquedas por usuario
-* Reportes de auditoría
-* Rendimiento de lectura
-
-minimizando impacto sobre operaciones de escritura.
-
----
-
 # Manejo de Incidentes
 
 ## Respuesta inicial al cliente
@@ -660,19 +590,6 @@ Posteriormente fue desacoplado para:
 
 ---
 
-## Eliminación de credenciales hardcodeadas
-
-Las credenciales ya no están almacenadas en el proyecto.
-
-Esto mejora:
-
-* Seguridad
-* Profesionalismo
-* Escalabilidad
-* Buenas prácticas
-
----
-
 ## Manejo de sesión persistente
 
 Acumatica ERP trabaja mediante cookies de sesión.
@@ -696,35 +613,6 @@ El repositorio NO incluye:
 * Información privada ERP
 
 La autenticación es completamente dinámica.
-
----
-
-# Capturas Recomendadas
-
-Se recomienda agregar screenshots de:
-
-* Login modal
-* Dashboard
-* Tabla de órdenes
-* Modal edición
-* Remove Hold
-* Logout
-
----
-
-# Video Loom
-
-El proyecto incluye explicación en video mostrando:
-
-* Arquitectura
-* Backend
-* Frontend
-* Flujo ERP
-* Login
-* Sesiones
-* SQL
-* Decisiones técnicas
-* Ejecución completa
 
 ---
 
