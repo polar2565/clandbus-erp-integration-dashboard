@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Prueba Técnica - Integración Acumatica ERP</strong>
+  <strong>Acumatica ERP Integration Dashboard</strong>
 </p>
 
 <p align="center">
@@ -14,53 +14,21 @@
 
 ---
 
-# Tabla de Contenido
-
-* Descripción General
-* Arquitectura del Proyecto
-* Tecnologías Utilizadas
-* Flujo General del Sistema
-* Estructura del Proyecto
-* Configuración del Backend
-* Configuración del Frontend
-* Flujo de Login ERP
-* Manejo de Sesión ERP
-* Dashboard Empresarial
-* Consulta de Órdenes
-* Actualización de Órdenes
-* Remove Hold
-* Logout ERP
-* Manejo de Errores
-* Decisiones Técnicas
-* Seguridad
-* Autor
-
----
-
 # Descripción General
 
-Este proyecto fue desarrollado como solución para la prueba técnica de ClandBus.
+Este proyecto implementa una integración completa con Acumatica ERP utilizando Angular para el frontend y ASP.NET Core para el backend.
 
-La solución implementa una integración completa con Acumatica ERP utilizando Angular para el frontend y ASP.NET Core para el backend.
+La aplicación permite:
 
-El objetivo principal fue construir una plataforma funcional, profesional y mantenible que permitiera:
-
-* Autenticarse contra Acumatica ERP
-* Mantener sesiones ERP activas
+* Iniciar sesión contra Acumatica ERP
+* Mantener sesiones ERP activas mediante cookies
 * Consultar órdenes de venta
 * Actualizar órdenes directamente desde la interfaz
 * Ejecutar acciones ERP como Remove Hold
-* Cerrar sesiones correctamente
-* Implementar una experiencia visual empresarial
-* Aplicar buenas prácticas de arquitectura y seguridad
+* Cerrar sesiones ERP correctamente
+* Visualizar información mediante un dashboard empresarial
 
-Además de cumplir los requerimientos técnicos, el proyecto fue diseñado pensando en:
-
-* Escalabilidad
-* Separación de responsabilidades
-* Experiencia de usuario
-* Documentación técnica
-* Facilidad de mantenimiento
+La arquitectura fue diseñada con enfoque empresarial, separando responsabilidades entre frontend, backend e integración ERP.
 
 ---
 
@@ -82,15 +50,6 @@ AcumaticaService (C#)
 Acumatica ERP REST API
 ```
 
-La arquitectura fue diseñada para desacoplar la lógica de autenticación del dashboard principal.
-
-Esto permite:
-
-* Mejor mantenibilidad
-* Separación clara de responsabilidades
-* Mayor claridad en el flujo de autenticación
-* Escalabilidad futura
-
 ---
 
 # Tecnologías Utilizadas
@@ -107,6 +66,7 @@ Esto permite:
 
 * ASP.NET Core 9
 * C#
+* REST API
 * HttpClient
 * CookieContainer
 * Dependency Injection
@@ -114,51 +74,6 @@ Esto permite:
 ## ERP
 
 * Acumatica REST API
-
-## Herramientas
-
-* Visual Studio Code
-* Visual Studio
-* Postman
-* GitHub
-* Loom
-
----
-
-# Flujo General del Sistema
-
-## 1. Usuario abre la plataforma
-
-El dashboard carga inicialmente sin sesión ERP activa.
-
-## 2. Usuario presiona "Conectar ERP"
-
-Se abre un modal desacoplado de autenticación.
-
-## 3. Usuario ingresa credenciales
-
-Las credenciales son enviadas al backend.
-
-## 4. Backend autentica contra Acumatica
-
-Se genera una sesión ERP utilizando cookies.
-
-## 5. Sistema obtiene órdenes
-
-Una vez autenticado, el dashboard carga las órdenes disponibles.
-
-## 6. Usuario interactúa con órdenes
-
-Puede:
-
-* Editar órdenes
-* Filtrar información
-* Buscar registros
-* Ejecutar Remove Hold
-
-## 7. Logout ERP
-
-La sesión es cerrada correctamente mediante logout.
 
 ---
 
@@ -199,9 +114,318 @@ backend/
 
 ---
 
-# Configuración del Backend
+# Backend Intermediary Layer
 
-## Ejecutar backend
+El frontend no consume Acumatica ERP directamente.
+
+Se implementó una capa intermedia en ASP.NET Core encargada de:
+
+* Manejar autenticación ERP
+* Mantener sesiones activas
+* Gestionar cookies
+* Centralizar integración ERP
+* Manejar errores
+* Encapsular endpoints ERP
+
+Esto permite una arquitectura más segura y mantenible.
+
+---
+
+# Endpoints Internos
+
+## Login ERP
+
+```http
+POST /api/Acumatica/login
+```
+
+Inicia sesión contra Acumatica ERP y genera la sesión activa.
+
+---
+
+## Obtener órdenes
+
+```http
+GET /api/Acumatica/orders
+```
+
+Obtiene órdenes de venta desde Acumatica ERP.
+
+---
+
+## Actualizar orden
+
+```http
+POST /api/Acumatica/update-order
+```
+
+Actualiza información de órdenes desde el dashboard.
+
+---
+
+## Remove Hold
+
+```http
+POST /api/Acumatica/remove-hold
+```
+
+Ejecuta la acción Remove Hold sobre órdenes ERP.
+
+---
+
+## Logout ERP
+
+```http
+POST /api/Acumatica/logout
+```
+
+Finaliza correctamente la sesión ERP.
+
+---
+
+# Flujo de Integración ERP
+
+## 1. Inicio de sesión
+
+El usuario ingresa sus credenciales desde el modal de login.
+
+---
+
+## 2. Backend autentica contra ERP
+
+ASP.NET Core consume:
+
+```http
+/entity/auth/login
+```
+
+---
+
+## 3. Acumatica genera cookies de sesión
+
+La sesión ERP se mantiene mediante `CookieContainer`.
+
+---
+
+## 4. Requests posteriores reutilizan sesión
+
+Las siguientes peticiones utilizan la misma sesión ERP activa:
+
+* Consulta de órdenes
+* Actualización de órdenes
+* Remove Hold
+* Logout
+
+---
+
+## 5. Logout ERP
+
+La sesión es destruida correctamente mediante:
+
+```http
+/entity/auth/logout
+```
+
+---
+
+# Login ERP
+
+La autenticación fue implementada mediante un modal desacoplado del dashboard principal.
+
+## Características
+
+* Login manual
+* Validación de campos
+* Manejo de errores
+* Modal reutilizable
+* Diseño empresarial
+* Integración ERP en tiempo real
+
+---
+
+# Manejo de Sesión ERP
+
+Uno de los puntos más importantes del proyecto fue mantener la sesión ERP activa entre peticiones.
+
+Para resolver esto se implementó:
+
+## CookieContainer
+
+Permite mantener cookies ERP activas.
+
+---
+
+## withCredentials
+
+El frontend envía credenciales correctamente entre dominios.
+
+---
+
+## Singleton Service
+
+El servicio ERP se registró como Singleton para mantener persistencia de sesión.
+
+---
+
+## Configuración CORS
+
+El backend permite credenciales cross-origin entre Angular y ASP.NET Core.
+
+---
+
+# Dashboard Empresarial
+
+El frontend fue diseñado para simular una interfaz empresarial moderna enfocada en experiencia de usuario.
+
+## Funcionalidades principales
+
+* Panel de estado ERP
+* Estadísticas dinámicas
+* Tabla de órdenes
+* Búsqueda en tiempo real
+* Filtro por estado
+* Control de registros visibles
+* Modales de edición
+* Notificaciones visuales
+* Loading overlays
+* Diseño responsive
+
+---
+
+# Tabla de Órdenes
+
+La tabla principal incluye múltiples funcionalidades dinámicas.
+
+## Búsqueda en tiempo real
+
+Permite buscar órdenes por:
+
+* Número de orden
+* Cliente
+* Descripción
+* Estado
+
+---
+
+## Filtro por estado
+
+El usuario puede filtrar órdenes por:
+
+* Open
+* Completed
+* On Hold
+* Invoiced
+
+---
+
+## Control de registros visibles
+
+La tabla permite mostrar:
+
+* 5 registros
+* 10 registros
+* 20 registros
+* 50 registros
+* Todos los registros
+
+---
+
+## Indicadores visuales
+
+Cada estado posee estilos visuales específicos para mejorar legibilidad y experiencia de usuario.
+
+---
+
+# Actualización de Órdenes
+
+La aplicación permite modificar órdenes directamente desde la interfaz.
+
+## Funcionalidad implementada
+
+* Apertura de modal
+* Modificación de descripción
+* Actualización ERP
+* Refresco visual
+* Confirmación de operación
+
+---
+
+# Remove Hold
+
+La solución implementa la acción requerida por Acumatica ERP.
+
+## Flujo
+
+* Detectar órdenes On Hold
+* Ejecutar acción ERP
+* Actualizar estado visual
+* Refrescar dashboard
+
+---
+
+# Logout ERP
+
+La aplicación implementa cierre de sesión ERP para evitar sesiones huérfanas.
+
+## Beneficios
+
+* Mejor control de sesión
+* Limpieza de conexión
+* Buenas prácticas empresariales
+
+---
+
+# Manejo de Errores
+
+La aplicación implementa manejo visual de errores y estados.
+
+## Casos manejados
+
+* Login inválido
+* ERP no disponible
+* Error de red
+* Sesión expirada
+* Error actualización
+* Error Remove Hold
+
+---
+
+# Decisiones Técnicas
+
+## Separación Login / Dashboard
+
+El login fue desacoplado del dashboard para:
+
+* Mejorar arquitectura
+* Separar responsabilidades
+* Facilitar mantenimiento
+* Mejorar escalabilidad
+
+---
+
+## Backend como capa intermedia
+
+El backend centraliza completamente la comunicación ERP.
+
+Beneficios:
+
+* Seguridad
+* Control de sesión
+* Encapsulación
+* Manejo de errores
+* Mejor mantenibilidad
+
+---
+
+## Arquitectura Standalone
+
+Angular fue implementado utilizando Standalone Components para mantener una arquitectura más moderna y modular.
+
+---
+
+# Instalación
+
+# Backend
 
 ```bash
 cd backend/ClandbusERPIntegration
@@ -215,7 +439,7 @@ dotnet restore
 dotnet run
 ```
 
-URL local:
+Backend:
 
 ```text
 https://localhost:7004
@@ -223,9 +447,7 @@ https://localhost:7004
 
 ---
 
-# Configuración del Frontend
-
-## Ejecutar frontend
+# Frontend
 
 ```bash
 cd frontend
@@ -239,7 +461,7 @@ npm install
 ng serve
 ```
 
-URL local:
+Frontend:
 
 ```text
 http://localhost:4200
@@ -247,11 +469,9 @@ http://localhost:4200
 
 ---
 
-# Configuración ERP
+# Configuración
 
-Por seguridad, el repositorio no incluye credenciales reales.
-
-Archivo de ejemplo:
+Archivo ejemplo:
 
 ```json
 {
@@ -261,298 +481,18 @@ Archivo de ejemplo:
 }
 ```
 
-Las credenciales se ingresan manualmente desde el frontend.
-
----
-
-# Flujo de Login ERP
-
-El login fue implementado utilizando un modal independiente del dashboard.
-
-Características implementadas:
-
-* Login manual
-* Modal desacoplado
-* Validación de campos
-* Manejo de errores
-* Persistencia de sesión
-* Cierre manual del modal
-* Interfaz empresarial moderna
-
-El endpoint utilizado:
-
-```http
-/entity/auth/login
-```
-
----
-
-# Manejo de Sesión ERP
-
-Uno de los puntos más importantes del proyecto fue mantener la sesión ERP activa.
-
-Para resolver esto se implementó:
-
-## CookieContainer
-
-Permite mantener las cookies de sesión entre peticiones.
-
-## withCredentials
-
-El frontend envía las cookies correctamente.
-
-## Singleton Service
-
-El servicio ERP fue registrado como Singleton para evitar pérdida de sesión.
-
-## CORS configurado
-
-El backend permite credenciales cross-origin.
-
-Gracias a esto:
-
-* La sesión ERP permanece activa
-* Las órdenes pueden consultarse correctamente
-* Remove Hold funciona correctamente
-* Logout limpia la sesión
-
----
-
-# Dashboard Empresarial
-
-El frontend fue diseñado para simular una interfaz empresarial moderna enfocada en experiencia de usuario y administración operativa.
-
-La aplicación incluye un dashboard interactivo conectado en tiempo real con Acumatica ERP.
-
-## Funcionalidades implementadas
-
-### Panel de estado ERP
-
-El dashboard muestra:
-
-* Estado actual de sesión ERP
-* Indicadores visuales de conexión
-* Estadísticas generales
-* Cantidad de órdenes cargadas
-* Última operación ejecutada
-
----
-
-## Tabla dinámica de órdenes
-
-La tabla principal incluye múltiples funcionalidades de interacción:
-
-### Búsqueda en tiempo real
-
-Permite buscar órdenes por:
-
-* Número de orden
-* Cliente
-* Descripción
-* Estado
-
----
-
-### Filtro por estado
-
-El usuario puede filtrar dinámicamente órdenes por:
-
-* Open
-* Completed
-* On Hold
-* Invoiced
-
----
-
-### Control de registros visibles
-
-El sistema permite seleccionar:
-
-* 5 registros
-* 10 registros
-* 20 registros
-* 50 registros
-* Mostrar todos
-
-Esto mejora navegación y rendimiento visual.
-
----
-
-### Indicadores visuales
-
-Cada estado posee estilos visuales distintos para mejorar legibilidad.
-
-Ejemplos:
-
-* Open → Verde
-* Completed → Azul
-* On Hold → Amarillo
-* Invoiced → Morado
-
----
-
-### Edición de órdenes
-
-Cada orden puede abrir un modal de edición para:
-
-* Modificar descripción
-* Guardar cambios directamente en ERP
-* Actualizar información en tiempo real
-
----
-
-### Remove Hold
-
-Las órdenes en estado "On Hold" permiten ejecutar la acción Remove Hold directamente desde la interfaz.
-
-El dashboard actualiza automáticamente:
-
-* Estado visual
-* Estadísticas
-* Tabla
-
----
-
-## Experiencia de usuario
-
-Se implementaron:
-
-* Modales desacoplados
-* Estados loading
-* Notificaciones visuales
-* Diseño responsive
-* Componentes reutilizables
-* Arquitectura limpia
-
----
-
-# Consulta de Órdenes
-
-Las órdenes son obtenidas directamente desde Acumatica ERP.
-
-Endpoint utilizado:
-
-```http
-GET /entity/Default/24.200.001/SalesOrder
-```
-
-Características:
-
-* Consulta dinámica
-* Renderizado en tabla
-* Filtrado en frontend
-* Estados visuales
-* Búsqueda en tiempo real
-
----
-
-# Actualización de Órdenes
-
-La aplicación permite modificar órdenes directamente desde la interfaz.
-
-Funcionalidad implementada:
-
-* Modal de edición
-* Cambio de descripción
-* Actualización vía API REST
-* Refresco de datos
-* Feedback visual
-
----
-
-# Remove Hold
-
-La solución implementa la acción requerida por la prueba técnica.
-
-Comportamiento:
-
-* Detecta órdenes On Hold
-* Ejecuta actualización ERP
-* Cambia estado a Open
-* Actualiza dashboard
-
----
-
-# Logout ERP
-
-La aplicación también implementa cierre de sesión ERP.
-
-Endpoint utilizado:
-
-```http
-/entity/auth/logout
-```
-
-Esto evita:
-
-* Sesiones huérfanas
-* Conexiones innecesarias
-* Problemas de seguridad
-
----
-
-# Manejo de Errores
-
-La aplicación incluye manejo básico de errores:
-
-* Login inválido
-* ERP no disponible
-* Errores de red
-* Sesión expirada
-* Errores de actualización
-* Errores Remove Hold
-
-También se implementaron:
-
-* Toast notifications
-* Estados de loading
-* Mensajes visuales
-
----
-
-# Decisiones Técnicas
-
-## Separación Login / Dashboard
-
-Inicialmente el login estaba integrado dentro del dashboard.
-
-Posteriormente fue desacoplado para:
-
-* Mejorar arquitectura
-* Facilitar mantenimiento
-* Simular un sistema empresarial real
-* Evitar lógica mezclada
-
----
-
-## Manejo de sesión persistente
-
-Acumatica ERP trabaja mediante cookies de sesión.
-
-Para resolver esto:
-
-* Se utilizó CookieContainer
-* Se configuró CORS
-* Se implementó withCredentials
-* Se utilizó Singleton service
-
 ---
 
 # Seguridad
 
-El repositorio NO incluye:
+El proyecto no incluye:
 
-* Usuarios reales
-* Contraseñas
+* Credenciales reales
 * Variables sensibles
 * Información privada ERP
-
-La autenticación es completamente dinámica.
 
 ---
 
 # Autor
 
 Javier Solís
-
-Prueba Técnica - ClandBus ERP Integration
