@@ -103,6 +103,8 @@
   gap: 12px;
 
   margin-top: 30px;
+
+  flex-wrap: wrap;
 }
 
 /* =========================================
@@ -153,6 +155,10 @@
   border-radius: 50%;
 
   background: #16a34a;
+}
+
+.status-dot.offline {
+  background: #dc2626;
 }
 
 .status-online h3 {
@@ -356,19 +362,19 @@ button:disabled {
 
   align-items: center;
 
-  padding: 24px 26px;
+  padding: 24px;
 
-  border-bottom: 1px solid #e7edf3;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .table-header h3 {
-  font-size: 18px;
+  font-size: 20px;
 
   font-weight: 600;
 
   color: #0f172a;
 
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .table-header span {
@@ -382,7 +388,7 @@ button:disabled {
 
   border-radius: 999px;
 
-  background: #eef2ff;
+  background: #eff6ff;
 
   color: #2563eb;
 
@@ -391,10 +397,6 @@ button:disabled {
   font-weight: 700;
 }
 
-/* =========================================
-   TOOLBAR
-========================================= */
-
 .table-toolbar {
   display: flex;
 
@@ -402,13 +404,11 @@ button:disabled {
 
   align-items: center;
 
-  gap: 18px;
+  gap: 16px;
 
-  padding: 20px 26px;
+  padding: 20px 24px;
 
-  border-bottom: 1px solid #e7edf3;
-
-  background: #fbfcfd;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .search-box {
@@ -420,34 +420,23 @@ button:disabled {
 
   height: 42px;
 
-  padding: 0 16px;
-
   border-radius: 8px;
 
-  border: 1px solid #d5dde7;
+  border: 1px solid #dbe2ea;
 
-  background: white;
+  padding: 0 14px;
+
+  font-size: 13px;
 
   outline: none;
-
-  font-size: 14px;
-
-  color: #1e293b;
-
-  transition: .2s ease;
 }
 
 .search-box input:focus {
   border-color: #2563eb;
-
-  box-shadow:
-    0 0 0 4px rgba(37, 99, 235, .08);
 }
 
 .toolbar-actions {
   display: flex;
-
-  align-items: center;
 
   gap: 12px;
 }
@@ -455,37 +444,18 @@ button:disabled {
 .toolbar-select {
   height: 42px;
 
-  min-width: 170px;
-
-  padding: 0 14px;
-
   border-radius: 8px;
 
-  border: 1px solid #d5dde7;
+  border: 1px solid #dbe2ea;
 
-  background: #ffffff;
+  padding: 0 12px;
 
-  color: #334155;
+  background: white;
 
   font-size: 13px;
 
-  font-weight: 500;
-
   outline: none;
-
-  transition: .2s ease;
 }
-
-.toolbar-select:focus {
-  border-color: #2563eb;
-
-  box-shadow:
-    0 0 0 4px rgba(37, 99, 235, .08);
-}
-
-/* =========================================
-   TABLE CONTENT
-========================================= */
 
 .table-container {
   overflow-x: auto;
@@ -502,15 +472,15 @@ thead {
 }
 
 th {
-  padding: 16px 20px;
-
   text-align: left;
 
-  font-size: 11px;
+  padding: 16px 20px;
+
+  font-size: 12px;
 
   font-weight: 700;
 
-  letter-spacing: .5px;
+  letter-spacing: .4px;
 
   text-transform: uppercase;
 
@@ -520,19 +490,11 @@ th {
 td {
   padding: 18px 20px;
 
-  border-top: 1px solid #edf2f7;
+  border-top: 1px solid #f1f5f9;
 
   font-size: 14px;
 
-  color: #334155;
-}
-
-tbody tr {
-  transition: .18s ease;
-}
-
-tbody tr:hover {
-  background: #f8fafc;
+  color: #0f172a;
 }
 
 .order-number {
@@ -542,19 +504,11 @@ tbody tr:hover {
 }
 
 .description {
-  max-width: 360px;
-
-  color: #475569;
-}
-
-.actions-column {
-  width: 250px;
+  max-width: 320px;
 }
 
 .table-actions {
   display: flex;
-
-  align-items: center;
 
   gap: 10px;
 }
@@ -570,57 +524,61 @@ tbody tr:hover {
 
   justify-content: center;
 
-  min-width: 90px;
+  min-width: 95px;
 
-  padding: 7px 12px;
+  height: 30px;
 
   border-radius: 999px;
+
+  padding: 0 14px;
 
   font-size: 11px;
 
   font-weight: 700;
+
+  text-transform: uppercase;
 }
 
 .status-badge.open {
-  background: #ecfdf3;
+  background: #dcfce7;
 
-  color: #15803d;
+  color: #166534;
 }
 
 .status-badge.completed {
-  background: #eff6ff;
+  background: #dbeafe;
 
-  color: #2563eb;
+  color: #1d4ed8;
 }
 
 .status-badge.hold {
-  background: #fff7ed;
+  background: #fef3c7;
 
-  color: #c2410c;
+  color: #92400e;
 }
 
 .status-badge.invoiced {
-  background: #f5f3ff;
+  background: #ede9fe;
 
-  color: #7c3aed;
+  color: #6d28d9;
 }
 
 /* =========================================
-   EMPTY STATE
+   EMPTY
 ========================================= */
 
 .empty-state {
   text-align: center;
 
-  padding: 70px 20px;
+  padding: 50px 20px !important;
 }
 
 .empty-state h4 {
-  font-size: 20px;
+  font-size: 18px;
+
+  margin-bottom: 8px;
 
   color: #0f172a;
-
-  margin-bottom: 10px;
 }
 
 .empty-state p {
@@ -628,7 +586,7 @@ tbody tr:hover {
 }
 
 /* =========================================
-   MODAL
+   EDIT MODAL
 ========================================= */
 
 .modal-overlay {
@@ -636,9 +594,7 @@ tbody tr:hover {
 
   inset: 0;
 
-  background: rgba(15, 23, 42, .32);
-
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, .55);
 
   display: flex;
 
@@ -654,18 +610,16 @@ tbody tr:hover {
 .editor-modal {
   width: 100%;
 
-  max-width: 720px;
+  max-width: 650px;
 
   background: white;
 
-  border-radius: 12px;
+  border-radius: 16px;
 
   overflow: hidden;
 
-  border: 1px solid #dbe2ea;
-
   box-shadow:
-    0 25px 60px rgba(15, 23, 42, .16);
+    0 24px 60px rgba(0, 0, 0, .18);
 }
 
 .modal-header {
@@ -677,39 +631,35 @@ tbody tr:hover {
 
   padding: 24px;
 
-  border-bottom: 1px solid #e7edf3;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .modal-header h2 {
   font-size: 24px;
 
-  font-weight: 600;
+  margin-bottom: 6px;
 
   color: #0f172a;
-
-  margin-bottom: 6px;
 }
 
 .modal-header span {
-  font-size: 13px;
-
   color: #64748b;
+
+  font-size: 13px;
 }
 
 .close-btn {
-  width: 40px;
+  width: 38px;
 
-  height: 40px;
+  height: 38px;
 
-  border-radius: 8px;
+  border-radius: 10px;
 
-  background: #f1f5f9;
+  background: #f8fafc;
+
+  font-size: 22px;
 
   color: #475569;
-
-  font-size: 20px;
-
-  font-weight: 700;
 }
 
 .modal-body {
@@ -717,17 +667,19 @@ tbody tr:hover {
 }
 
 .form-group {
+  display: flex;
+
+  flex-direction: column;
+
   margin-bottom: 20px;
 }
 
 .form-group label {
-  display: block;
-
-  margin-bottom: 8px;
-
   font-size: 13px;
 
   font-weight: 600;
+
+  margin-bottom: 8px;
 
   color: #334155;
 }
@@ -736,35 +688,22 @@ tbody tr:hover {
 .form-group textarea {
   width: 100%;
 
+  border: 1px solid #dbe2ea;
+
+  border-radius: 10px;
+
   padding: 14px;
-
-  border-radius: 8px;
-
-  border: 1px solid #cfd8e3;
-
-  background: white;
-
-  outline: none;
 
   font-size: 14px;
 
-  font-family: inherit;
+  outline: none;
 
-  transition: .2s ease;
+  resize: vertical;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   border-color: #2563eb;
-
-  box-shadow:
-    0 0 0 4px rgba(37, 99, 235, .08);
-}
-
-.form-group textarea {
-  resize: vertical;
-
-  min-height: 140px;
 }
 
 .modal-actions {
@@ -776,12 +715,12 @@ tbody tr:hover {
 
   padding: 24px;
 
-  border-top: 1px solid #e7edf3;
+  border-top: 1px solid #e2e8f0;
 }
 
 .cancel-btn,
 .save-btn {
-  height: 42px;
+  height: 44px;
 
   padding: 0 18px;
 
@@ -789,15 +728,15 @@ tbody tr:hover {
 
   font-size: 13px;
 
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .cancel-btn {
-  background: white;
+  background: #f8fafc;
 
-  border: 1px solid #cfd8e3;
+  border: 1px solid #dbe2ea;
 
-  color: #475569;
+  color: #334155;
 }
 
 .save-btn {
@@ -823,6 +762,21 @@ tbody tr:hover {
   .stats-section {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 768px) {
+
+  .dashboard-container {
+    padding: 16px;
+  }
+
+  .hero-content {
+    padding: 24px;
+  }
+
+  .hero-content h1 {
+    font-size: 34px;
+  }
 
   .table-toolbar {
     flex-direction: column;
@@ -831,64 +785,14 @@ tbody tr:hover {
   }
 
   .toolbar-actions {
-    width: 100%;
-
     flex-direction: column;
-
-    align-items: stretch;
-  }
-
-  .toolbar-select {
-    width: 100%;
-  }
-}
-
-@media (max-width: 768px) {
-
-  .dashboard-container {
-    padding: 14px;
-  }
-
-  .hero-content {
-    padding: 24px;
-  }
-
-  .hero-content h1 {
-    font-size: 32px;
-  }
-
-  .hero-actions {
-    flex-direction: column;
-
-    align-items: stretch;
-  }
-
-  .table-header {
-    flex-direction: column;
-
-    align-items: flex-start;
-
-    gap: 12px;
   }
 
   .table-actions {
     flex-direction: column;
-
-    align-items: stretch;
-  }
-
-  .modal-header {
-    flex-direction: column;
-
-    gap: 12px;
   }
 
   .modal-actions {
     flex-direction: column;
-  }
-
-  .cancel-btn,
-  .save-btn {
-    width: 100%;
   }
 }

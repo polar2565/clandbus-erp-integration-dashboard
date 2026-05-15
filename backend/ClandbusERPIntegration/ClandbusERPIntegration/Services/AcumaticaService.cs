@@ -16,6 +16,8 @@ namespace ClandbusERPIntegration.Services
 
         private bool _isLoggedIn = false;
 
+        private LoginRequestDto? _currentSession;
+
         public AcumaticaService(
             HttpClient httpClient,
             IOptions<AcumaticaSettings> settings)
@@ -38,7 +40,8 @@ namespace ClandbusERPIntegration.Services
                 "*/*");
         }
 
-        public async Task<bool> LoginAsync()
+        public async Task<bool> LoginAsync(
+            LoginRequestDto loginRequest)
         {
             Console.WriteLine(
                 "ENTRANDO A LOGIN");
@@ -53,10 +56,10 @@ namespace ClandbusERPIntegration.Services
 
             var loginData = new
             {
-                name = _settings.Username,
-                password = _settings.Password,
-                tenant = "Company",
-                branch = "PUEBLA"
+                name = loginRequest.Username,
+                password = loginRequest.Password,
+                tenant = loginRequest.Company,
+                branch = loginRequest.Branch
             };
 
             var json =
@@ -102,6 +105,9 @@ namespace ClandbusERPIntegration.Services
                 return false;
             }
 
+            _currentSession =
+                loginRequest;
+
             _isLoggedIn = true;
 
             Console.WriteLine(
@@ -116,13 +122,11 @@ namespace ClandbusERPIntegration.Services
             Console.WriteLine(
                 "OBTENIENDO ORDENES");
 
-            var loginSuccess =
-                await LoginAsync();
-
-            if (!loginSuccess)
+            if (!_isLoggedIn ||
+                _currentSession == null)
             {
                 Console.WriteLine(
-                    "NO SE PUDO HACER LOGIN");
+                    "NO EXISTE SESION ERP");
 
                 return new List<SalesOrderDto>();
             }
@@ -170,10 +174,7 @@ namespace ClandbusERPIntegration.Services
         public async Task<bool> UpdateOrderAsync(
             UpdateOrderDto request)
         {
-            var loginSuccess =
-                await LoginAsync();
-
-            if (!loginSuccess)
+            if (!_isLoggedIn)
             {
                 return false;
             }
@@ -235,10 +236,7 @@ namespace ClandbusERPIntegration.Services
         public async Task<bool> RemoveHoldAsync(
             RemoveHoldDto request)
         {
-            var loginSuccess =
-                await LoginAsync();
-
-            if (!loginSuccess)
+            if (!_isLoggedIn)
             {
                 return false;
             }
@@ -307,6 +305,8 @@ namespace ClandbusERPIntegration.Services
                 null);
 
             _isLoggedIn = false;
+
+            _currentSession = null;
 
             Console.WriteLine(
                 "SESION CERRADA");

@@ -17,23 +17,26 @@ namespace ClandbusERPIntegration.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login()
+        public async Task<IActionResult> Login(
+            LoginRequestDto request)
         {
             try
             {
-                var success = await _acumaticaService.LoginAsync();
+                var success =
+                    await _acumaticaService
+                        .LoginAsync(request);
 
                 if (!success)
                 {
                     return BadRequest(new
                     {
-                        message = "Login failed"
+                        message = "ERP login failed"
                     });
                 }
 
                 return Ok(new
                 {
-                    message = "Login successful"
+                    message = "ERP session started successfully"
                 });
             }
             catch (Exception ex)
@@ -50,8 +53,9 @@ namespace ClandbusERPIntegration.Controllers
         {
             try
             {
-                var orders = await _acumaticaService
-                    .GetLastSalesOrdersAsync();
+                var orders =
+                    await _acumaticaService
+                        .GetLastSalesOrdersAsync();
 
                 return Ok(orders);
             }
@@ -70,8 +74,9 @@ namespace ClandbusERPIntegration.Controllers
         {
             try
             {
-                var success = await _acumaticaService
-                    .UpdateOrderAsync(request);
+                var success =
+                    await _acumaticaService
+                        .UpdateOrderAsync(request);
 
                 if (!success)
                 {
@@ -101,8 +106,9 @@ namespace ClandbusERPIntegration.Controllers
         {
             try
             {
-                var success = await _acumaticaService
-                    .RemoveHoldAsync(request);
+                var success =
+                    await _acumaticaService
+                        .RemoveHoldAsync(request);
 
                 if (!success)
                 {
@@ -114,7 +120,8 @@ namespace ClandbusERPIntegration.Controllers
 
                 return Ok(new
                 {
-                    message = "Remove Hold executed successfully"
+                    message =
+                        "Remove Hold executed successfully"
                 });
             }
             catch (Exception ex)
@@ -131,7 +138,8 @@ namespace ClandbusERPIntegration.Controllers
         {
             try
             {
-                await _acumaticaService.LogoutAsync();
+                await _acumaticaService
+                    .LogoutAsync();
 
                 return Ok(new
                 {

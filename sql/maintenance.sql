@@ -17,9 +17,7 @@
     2. Optimizar búsquedas frecuentes por:
        - rango de fechas
        - usuario
-
 */
-
 
 -- =========================================================
 -- DELETE HISTORICAL RECORDS
@@ -44,22 +42,26 @@ WHERE [Date] < '2025-01-01';
 /*
     Optimización de búsquedas frecuentes sobre:
 
-    - Date
     - Username
+    - Date
 
     Escenario esperado:
 
     SELECT *
     FROM LoginTrace
-    WHERE [Date] BETWEEN @StartDate AND @EndDate
-      AND [Username] = @Username
+    WHERE [Username] = @Username
+      AND [Date] BETWEEN @StartDate AND @EndDate
 
-    El índice compuesto ayuda a reducir
-    tiempos de lectura y scans completos.
+    El índice compuesto permite:
+
+    - Reducir scans completos
+    - Mejorar búsquedas por usuario
+    - Optimizar filtros por rango de fechas
+    - Mejorar rendimiento de reportes de auditoría
 */
 
-CREATE NONCLUSTERED INDEX IX_LoginTrace_Date_Username
+CREATE NONCLUSTERED INDEX IX_LoginTrace_Username_Date
 ON LoginTrace (
-    [Date],
-    [Username]
+    [Username],
+    [Date]
 );

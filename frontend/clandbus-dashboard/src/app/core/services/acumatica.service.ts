@@ -17,18 +17,24 @@ export class AcumaticaService {
   ) {
   }
 
-  login() {
+  login(payload: any) {
 
     return this.http.post(
       `${this.apiUrl}/login`,
-      {}
+      payload,
+      {
+        withCredentials: true
+      }
     );
   }
 
   getOrders() {
 
     return this.http.get(
-      `${this.apiUrl}/orders`
+      `${this.apiUrl}/orders`,
+      {
+        withCredentials: true
+      }
     );
   }
 
@@ -36,7 +42,10 @@ export class AcumaticaService {
 
     return this.http.post(
       `${this.apiUrl}/update-order`,
-      payload
+      payload,
+      {
+        withCredentials: true
+      }
     );
   }
 
@@ -44,7 +53,10 @@ export class AcumaticaService {
 
     return this.http.post(
       `${this.apiUrl}/remove-hold`,
-      payload
+      payload,
+      {
+        withCredentials: true
+      }
     );
   }
 
@@ -52,7 +64,10 @@ export class AcumaticaService {
 
     return this.http.post(
       `${this.apiUrl}/logout`,
-      {}
+      {},
+      {
+        withCredentials: true
+      }
     );
   }
 }

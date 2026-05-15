@@ -2,28 +2,59 @@ using System.Net;
 using ClandbusERPIntegration.Configurations;
 using ClandbusERPIntegration.Interfaces;
 using ClandbusERPIntegration.Services;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ======================================
+// CONFIGURATION
+// ======================================
 
 builder.Services.Configure<AcumaticaSettings>(
     builder.Configuration.GetSection("Acumatica"));
 
-builder.Services.AddHttpClient<IAcumaticaService, AcumaticaService>()
-    .ConfigurePrimaryHttpMessageHandler(() =>
+// ======================================
+// ERP SESSION / HTTP CLIENT
+// ======================================
+
+builder.Services.AddSingleton<CookieContainer>();
+
+builder.Services.AddSingleton<IAcumaticaService>(
+    serviceProvider =>
     {
-        return new HttpClientHandler
-        {
-            CookieContainer = new CookieContainer(),
+        var settings =
+            serviceProvider
+                .GetRequiredService<
+                    IOptions<AcumaticaSettings>>();
 
-            UseCookies = true,
+        var cookies =
+            serviceProvider
+                .GetRequiredService<
+                    CookieContainer>();
 
-            ServerCertificateCustomValidationCallback =
-                HttpClientHandler
-                    .DangerousAcceptAnyServerCertificateValidator
-        };
+        var handler =
+            new HttpClientHandler
+            {
+                CookieContainer = cookies,
+
+                UseCookies = true,
+
+                ServerCertificateCustomValidationCallback =
+                    HttpClientHandler
+                        .DangerousAcceptAnyServerCertificateValidator
+            };
+
+        var httpClient =
+            new HttpClient(handler);
+
+        return new AcumaticaService(
+            httpClient,
+            settings);
     });
+
+// ======================================
+// CONTROLLERS
+// ======================================
 
 builder.Services.AddControllers();
 
@@ -31,20 +62,31 @@ builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();
 
+// ======================================
+// CORS
+// ======================================
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AngularPolicy",
+    options.AddPolicy(
+        "AngularPolicy",
         policy =>
         {
-            policy.WithOrigins("http://localhost:4200")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
+            policy
+                .WithOrigins(
+                    "http://localhost:4200"
+                )
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
         });
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ======================================
+// PIPELINE
+// ======================================
 
 if (app.Environment.IsDevelopment())
 {

@@ -13,16 +13,24 @@ from '../../shared/components/loading-overlay/loading-overlay.component';
 import { ToastNotificationComponent }
 from '../../shared/components/toast-notification/toast-notification.component';
 
+import { LoginComponent }
+from '../login/login.component';
+
 @Component({
   selector: 'app-dashboard',
+
   standalone: true,
+
   imports: [
     CommonModule,
     FormsModule,
     LoadingOverlayComponent,
-    ToastNotificationComponent
+    ToastNotificationComponent,
+    LoginComponent
   ],
+
   templateUrl: './dashboard.component.html',
+
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
@@ -39,7 +47,7 @@ export class DashboardComponent {
 
   completedOrders = 0;
 
-  sessionStatus = 'Offline';
+  sessionStatus = 'Disconnected';
 
   lastOperation = '-';
 
@@ -71,9 +79,51 @@ export class DashboardComponent {
     | 'info'
     = 'info';
 
+  /* ======================================
+     ERP LOGIN
+  ====================================== */
+
+  showLoginModal = false;
+
+  isLoggedIn = false;
+
   constructor(
     private acumaticaService: AcumaticaService
   ) {
+  }
+
+  /* ======================================
+     LOGIN MODAL
+  ====================================== */
+
+  openLoginModal() {
+
+    this.showLoginModal = true;
+  }
+
+  closeLoginModal() {
+
+    this.showLoginModal = false;
+  }
+
+  onLoginSuccess() {
+
+    this.isLoggedIn = true;
+
+    this.showLoginModal = false;
+
+    this.sessionStatus =
+      'Connected';
+
+    this.lastOperation =
+      'ERP Connected';
+
+    this.showToast(
+      'Sesión ERP iniciada correctamente',
+      'success'
+    );
+
+    this.loadOrders();
   }
 
   showToast(
@@ -119,13 +169,10 @@ export class DashboardComponent {
 
           this.updateDashboardStats();
 
-          this.sessionStatus =
-            'Online';
+          this.applyFilters();
 
           this.lastOperation =
             'Órdenes cargadas';
-
-          this.applyFilters();
 
           setTimeout(() => {
 
@@ -144,15 +191,12 @@ export class DashboardComponent {
           console.error(error);
 
           this.sessionStatus =
-            'Offline';
-
-          this.lastOperation =
-            'Error API';
+            'Disconnected';
 
           this.isLoading = false;
 
           this.showToast(
-            'No fue posible conectar con Acumatica ERP',
+            'Error al obtener órdenes',
             'error'
           );
         }
@@ -166,66 +210,55 @@ export class DashboardComponent {
 
     this.openOrders =
       this.orders.filter(
-        (o: any) =>
-          o.status?.value === 'Open'
+        (x: any) =>
+          x.status?.value === 'Open'
       ).length;
 
     this.completedOrders =
       this.orders.filter(
-        (o: any) =>
-          o.status?.value === 'Completed'
+        (x: any) =>
+          x.status?.value === 'Completed'
       ).length;
 
-    const statuses: string[] =
-      this.orders
-        .map(
-          (o: any) =>
-            o.status?.value
-        )
-        .filter(
-          (status: any) =>
-            !!status
-        );
+    const statuses =
+      this.orders.map(
+        (x: any) =>
+          x.status?.value
+      );
 
     this.availableStatuses =
-      Array.from(
-        new Set(statuses)
-      );
+      [...new Set(statuses)];
   }
 
   applyFilters() {
 
     let data = [...this.orders];
 
-    if (this.searchTerm.trim()) {
+    if (
+      this.searchTerm.trim()
+    ) {
 
-      const search =
+      const term =
         this.searchTerm
           .toLowerCase();
 
-      data = data.filter(order =>
+      data = data.filter(
+        (order: any) =>
+          order.orderNbr?.value
+            ?.toLowerCase()
+            ?.includes(term)
 
-        order.orderNbr?.value
-          ?.toLowerCase()
-          .includes(search)
+          ||
 
-        ||
+          order.customerID?.value
+            ?.toLowerCase()
+            ?.includes(term)
 
-        order.customerID?.value
-          ?.toLowerCase()
-          .includes(search)
+          ||
 
-        ||
-
-        order.description?.value
-          ?.toLowerCase()
-          .includes(search)
-
-        ||
-
-        order.status?.value
-          ?.toLowerCase()
-          .includes(search)
+          order.description?.value
+            ?.toLowerCase()
+            ?.includes(term)
       );
     }
 
@@ -233,10 +266,10 @@ export class DashboardComponent {
       this.selectedStatus !== 'ALL'
     ) {
 
-      data = data.filter(order =>
-
-        order.status?.value ===
-        this.selectedStatus
+      data = data.filter(
+        (order: any) =>
+          order.status?.value ===
+          this.selectedStatus
       );
     }
 
@@ -257,7 +290,8 @@ export class DashboardComponent {
     rows: number
   ) {
 
-    this.visibleRows = rows;
+    this.visibleRows =
+      Number(rows);
 
     this.applyFilters();
   }
@@ -277,34 +311,17 @@ export class DashboardComponent {
     this.showEditor = false;
 
     this.selectedOrder = null;
-
-    this.editDescription = '';
   }
 
   saveOrder() {
 
     if (!this.selectedOrder) {
-
-      this.showToast(
-        'No hay orden seleccionada',
-        'error'
-      );
-
       return;
     }
 
     this.isSaving = true;
 
-    this.isLoading = true;
-
-    this.lastOperation =
-      'Actualizando orden';
-
     const payload = {
-
-      orderType:
-        this.selectedOrder
-          .orderType?.value,
 
       orderNbr:
         this.selectedOrder
@@ -320,28 +337,18 @@ export class DashboardComponent {
 
         next: () => {
 
-          this.isSaving = false;
-
-          this.isLoading = false;
-
-          this.lastOperation =
-            'Orden actualizada';
-
-          /* ======================================
-             UPDATE LOCAL REAL TIME
-          ====================================== */
-
-          this.selectedOrder.description.value =
-            this.editDescription;
-
-          this.applyFilters();
-
-          this.closeEditor();
+          this.selectedOrder
+            .description.value =
+              this.editDescription;
 
           this.showToast(
             'Orden actualizada correctamente',
             'success'
           );
+
+          this.closeEditor();
+
+          this.isSaving = false;
         },
 
         error: (error: any) => {
@@ -350,10 +357,8 @@ export class DashboardComponent {
 
           this.isSaving = false;
 
-          this.isLoading = false;
-
           this.showToast(
-            'No fue posible actualizar la orden',
+            'Error al actualizar orden',
             'error'
           );
         }
@@ -362,30 +367,9 @@ export class DashboardComponent {
 
   removeHold(order: any) {
 
-    if (
-      order.status?.value !==
-      'On Hold'
-    ) {
-
-      this.showToast(
-        'La orden no está en estado On Hold',
-        'info'
-      );
-
-      return;
-    }
-
     this.removingHold = true;
 
-    this.isLoading = true;
-
-    this.lastOperation =
-      'Ejecutando Remove Hold';
-
     const payload = {
-
-      orderType:
-        order.orderType?.value,
 
       orderNbr:
         order.orderNbr?.value
@@ -397,17 +381,6 @@ export class DashboardComponent {
 
         next: () => {
 
-          this.removingHold = false;
-
-          this.isLoading = false;
-
-          this.lastOperation =
-            'Remove Hold ejecutado';
-
-          /* ======================================
-             UPDATE LOCAL REAL TIME
-          ====================================== */
-
           order.status.value =
             'Open';
 
@@ -415,8 +388,10 @@ export class DashboardComponent {
 
           this.applyFilters();
 
+          this.removingHold = false;
+
           this.showToast(
-            'La orden cambió a estado Open',
+            'Hold removido correctamente',
             'success'
           );
         },
@@ -427,10 +402,8 @@ export class DashboardComponent {
 
           this.removingHold = false;
 
-          this.isLoading = false;
-
           this.showToast(
-            'No fue posible ejecutar Remove Hold',
+            'Error al remover hold',
             'error'
           );
         }
@@ -441,20 +414,16 @@ export class DashboardComponent {
 
     this.isLoading = true;
 
-    this.lastOperation =
-      'Cerrando sesión';
-
     this.acumaticaService
       .logout()
       .subscribe({
 
         next: () => {
 
-          this.sessionStatus =
-            'Offline';
+          this.isLoggedIn = false;
 
-          this.lastOperation =
-            'Logout';
+          this.sessionStatus =
+            'Disconnected';
 
           this.orders = [];
 
@@ -466,17 +435,11 @@ export class DashboardComponent {
 
           this.completedOrders = 0;
 
-          this.availableStatuses = [];
-
-          setTimeout(() => {
-
-            this.isLoading = false;
-
-          }, 250);
+          this.isLoading = false;
 
           this.showToast(
             'Sesión cerrada correctamente',
-            'info'
+            'success'
           );
         },
 
@@ -487,7 +450,7 @@ export class DashboardComponent {
           this.isLoading = false;
 
           this.showToast(
-            'No fue posible cerrar sesión',
+            'Error al cerrar sesión',
             'error'
           );
         }

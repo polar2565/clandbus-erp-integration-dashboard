@@ -9,6 +9,16 @@
   [type]="toastType">
 </app-toast-notification>
 
+<!-- ======================================
+     LOGIN COMPONENT
+====================================== -->
+
+<app-login
+  *ngIf="showLoginModal"
+  (close)="closeLoginModal()"
+  (loginSuccess)="onLoginSuccess()">
+</app-login>
+
 <div class="dashboard-container">
 
   <!-- ======================================
@@ -36,8 +46,22 @@
 
       <div class="hero-actions">
 
+        <!-- CONNECT ERP -->
+
         <button
           class="primary-btn"
+          *ngIf="!isLoggedIn"
+          (click)="openLoginModal()">
+
+          Conectar ERP
+
+        </button>
+
+        <!-- LOAD ORDERS -->
+
+        <button
+          class="primary-btn"
+          *ngIf="isLoggedIn"
           (click)="loadOrders()"
           [disabled]="isLoading">
 
@@ -49,9 +73,12 @@
 
         </button>
 
+        <!-- LOGOUT -->
+
         <button
           class="danger-btn"
-          (click)="logout()">
+          (click)="logout()"
+          [disabled]="!isLoggedIn">
 
           Cerrar Sesión
 
@@ -61,6 +88,8 @@
 
     </div>
 
+    <!-- STATUS -->
+
     <div class="status-panel">
 
       <span class="status-label">
@@ -69,7 +98,10 @@
 
       <div class="status-online">
 
-        <div class="status-dot"></div>
+        <div
+          class="status-dot"
+          [class.offline]="!isLoggedIn">
+        </div>
 
         <h3>
           {{ sessionStatus }}
@@ -441,7 +473,7 @@
 </div>
 
 <!-- ======================================
-     MODAL
+     EDIT MODAL
 ====================================== -->
 
 <div
